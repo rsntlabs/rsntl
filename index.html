@@ -375,6 +375,97 @@ fn fs(@builtin(position) frag: vec4f) -> @location(0) vec4f {
     const t0   = performance.now();
     const seed = Math.random() * 1000;
 
+    /* ── JS mirrors of the WGSL position functions ───────────────────
+       Used to detect which blob the user clicked on.
+       Coordinates are in UV space [0,1]; Y is flipped to match shader. */
+    const parentPos = (i, t) => {
+      const phi = i * Math.PI;
+      const spd = 0.06 + i * 0.03;
+      const orb = 0.30 + 0.08 * Math.sin(i * 1.7 + 0.5);
+      return [
+        0.5 + orb * Math.cos(t * spd + phi) * (0.9 + 0.1 * Math.sin(t * spd * 0.6 + phi)),
+        0.5 + orb * Math.sin(t * spd * 0.75 + phi) * (0.9 + 0.1 * Math.cos(t * spd * 0.5 + phi)),
+      ];
+    };
+
+    const childPos = (idx, t) => {
+      const [px, py] = parentPos(idx % 2, t);
+      const phi = idx * 2.39996323;
+      const spd = 0.22 + idx * 0.07;
+      const orb = 0.10 + 0.04 * Math.sin(idx * 2.1 + t * 0.08);
+      return [
+        px + orb * Math.cos(t * spd + phi),
+        py + orb * Math.sin(t * spd * 0.85 + phi * 1.2),
+      ];
+    };
+
+    const blobPos = (i, t) => i < 2 ? parentPos(i, t) : childPos(i - 2, t);
+    const blobRad = (i, t) => i < 2
+      ? 0.28 + 0.05 * Math.sin(i * 1.73 + t * 0.06)
+      : 0.09 + 0.03 * Math.sin(i * 2.31 + t * 0.12);
+
+    /* ── Split particle spawner ── */
+    const splitColors = ['#7F00FF','#5500FF','#AA00FF','#6600F2','#CC00FF','#EE00CC'];
+
+    const spawnSplits = (clientX, clientY, blobIdx) => {
+      const count    = blobIdx < 2 ? 7 : 4;
+      const baseSize = blobIdx < 2 ? 44 : 22;
+      for (let k = 0; k < count; k++) {
+        const angle = (k / count) * Math.PI * 2 + Math.random() * 0.7;
+        const dist  = (blobIdx < 2 ? 110 : 65) + Math.random() * 90;
+        const size  = baseSize * (0.45 + Math.random() * 0.75);
+        const color = splitColors[(blobIdx + k) % splitColors.length];
+        const el    = document.createElement('div');
+        el.style.cssText = `
+          position:fixed;left:${clientX}px;top:${clientY}px;
+          width:${size}px;height:${size}px;border-radius:50%;
+          background:${color};filter:blur(${(size * 0.45).toFixed(1)}px);
+          pointer-events:none;z-index:8;
+          transform:translate(-50%,-50%);opacity:0.9;
+          transition:transform 1s cubic-bezier(0.15,0,0.35,1),opacity 1s ease-out;
+        `;
+        document.body.appendChild(el);
+        requestAnimationFrame(() => {
+          el.style.transform = `translate(calc(-50% + ${(Math.cos(angle)*dist).toFixed(1)}px),`
+                              +`calc(-50% + ${(Math.sin(angle)*dist).toFixed(1)}px)) scale(0.25)`;
+          el.style.opacity = '0';
+        });
+        setTimeout(() => el.remove(), 1050);
+      }
+    };
+
+    /* ── Pointer-cursor hint on hover ── */
+    document.addEventListener('mousemove', e => {
+      /* UV with Y-flip to match shader */
+      const mx = e.clientX / window.innerWidth;
+      const my = 1 - e.clientY / window.innerHeight;
+      const t  = seed + (performance.now() - t0) / 1000;
+      let hit  = false;
+      for (let i = 0; i < 6; i++) {
+        const [bx, by] = blobPos(i, t);
+        const br = blobRad(i, t);
+        if (Math.hypot(mx - bx, my - by) < br * 1.6) { hit = true; break; }
+      }
+      document.body.style.cursor = hit ? 'pointer' : '';
+    });
+
+    /* ── Click to split ── */
+    document.addEventListener('click', e => {
+      /* ignore clicks on the text card */
+      if (e.target.closest('main')) return;
+      const mx = e.clientX / window.innerWidth;
+      const my = 1 - e.clientY / window.innerHeight;
+      const t  = seed + (performance.now() - t0) / 1000;
+      for (let i = 0; i < 6; i++) {
+        const [bx, by] = blobPos(i, t);
+        const br = blobRad(i, t);
+        if (Math.hypot(mx - bx, my - by) < br * 1.6) {
+          spawnSplits(e.clientX, e.clientY, i);
+          break;
+        }
+      }
+    });
+
     const frame = () => {
       uni[0] = seed + (performance.now() - t0) / 1000;
       uni[1] = isDark() ? 1.0 : 0.0;
