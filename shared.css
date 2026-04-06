@@ -33,16 +33,16 @@
 @media (prefers-color-scheme: light) {
   :root {
     --bg:            #F5F5FA;
-    --fg:            rgba(8,8,22,0.90);
-    --sub:           rgba(8,8,22,0.52);
-    --sub-hover:     rgba(8,8,22,0.88);
+    --fg:            rgba(8,8,22,0.96);
+    --sub:           rgba(8,8,22,0.68);
+    --sub-hover:     rgba(8,8,22,0.96);
     --card-bg:       rgba(245,245,252,0.38);
-    --card-bg-solid: rgba(255,255,255,0.72);
-    --card-border:   rgba(255,255,255,0.70);
+    --card-bg-solid: rgba(255,255,255,0.90);
+    --card-border:   rgba(8,8,22,0.12);
     --vignette:      radial-gradient(ellipse at 50% 50%, transparent 20%, rgba(220,220,235,0.55) 100%);
-    --nav-bg:        rgba(245,245,252,0.60);
-    --nav-border:    rgba(0,0,0,0.08);
-    --accent:        #6600bb;
+    --nav-bg:        rgba(245,245,252,0.80);
+    --nav-border:    rgba(8,8,22,0.12);
+    --accent:        #5500aa;
   }
 }
 
@@ -127,7 +127,7 @@ body::after {
 .nav-brand {
   font-family: var(--font-serif);
   font-weight: 300;
-  font-size: 0.95rem;
+  font-size: 1.09rem;
   letter-spacing: -0.01em;
   color: var(--fg);
   text-decoration: none;
@@ -147,7 +147,7 @@ body::after {
 .nav-link {
   font-family: var(--font-serif);
   font-weight: 300;
-  font-size: 0.95rem;
+  font-size: 1.09rem;
   letter-spacing: 0.04em;
   color: var(--sub);
   text-decoration: none;

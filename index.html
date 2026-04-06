@@ -28,7 +28,7 @@
       font-family: var(--font-serif);
       font-optical-sizing: auto;
       font-weight: 300;
-      font-size: clamp(2rem, 11vw, 7rem);
+      font-size: clamp(2.3rem, 12.65vw, 8rem);
       letter-spacing: -0.025em;
       line-height: 1;
       color: var(--fg);
@@ -41,7 +41,7 @@
       font-family: var(--font-serif);
       font-optical-sizing: auto;
       font-weight: 300;
-      font-size: clamp(0.9rem, 4vw, 2rem);
+      font-size: clamp(1.04rem, 4.6vw, 2.3rem);
       letter-spacing: -0.01em;
       color: var(--fg);
       margin-top: clamp(0.5rem, 2vw, 1.2rem);
@@ -50,21 +50,31 @@
       animation-delay: 0.5s;
     }
 
-    a.contact {
+    a.cta {
       font-family: var(--font-serif);
       font-optical-sizing: auto;
       font-weight: 300;
-      font-size: clamp(0.85rem, 3.5vw, 1.75rem);
-      letter-spacing: 0.02em;
-      color: var(--sub);
+      font-size: clamp(0.93rem, 2.4vw, 1.21rem);
+      letter-spacing: 0.04em;
+      color: var(--fg);
       text-decoration: none;
-      margin-top: clamp(0.8rem, 3vw, 1.8rem);
-      transition: color 0.35s ease, letter-spacing 0.35s ease;
+      margin-top: clamp(1.2rem, 3vw, 2rem);
+      padding: 0.75em 1.8em;
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-pill);
+      background: var(--card-bg);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background 0.25s ease, border-color 0.25s ease, color 0.25s ease;
       opacity: 0;
       animation: fade-up 0.7s var(--ease-spring) both;
       animation-delay: 0.65s;
     }
-    a.contact:hover { color: var(--sub-hover); letter-spacing: 0.04em; }
+    a.cta:hover {
+      background: var(--accent-subtle);
+      border-color: var(--accent);
+      color: var(--fg);
+    }
   </style>
 </head>
 <body>
@@ -81,7 +91,7 @@
     <main>
       <h1>Resonant Labs</h1>
       <p class="tagline">Engineering that serves the business.<br>Strategy that understands the code.</p>
-      <a class="contact" href="mailto:hello@rsntl.com">hello@rsntl.com</a>
+      <a class="cta" href="https://calendar.proton.me/bookings#XIas9qvemCj4sukGlTICmHmCk8u1LBbN3vzjGjqRM4I=" target="_blank" rel="noopener">Schedule a call</a>
     </main>
   </div>
 
