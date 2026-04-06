@@ -37,20 +37,34 @@
       animation-delay: 0.35s;
     }
 
+    .tagline {
+      font-family: 'Fraunces', serif;
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-size: clamp(1.1rem, 2.8vw, 2rem);
+      letter-spacing: -0.01em;
+      color: var(--fg);
+      margin-top: clamp(0.8rem, 1.5vw, 1.2rem);
+      opacity: 0;
+      animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.5s;
+    }
+
     a.contact {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 400;
+      font-family: 'Fraunces', serif;
+      font-optical-sizing: auto;
+      font-weight: 300;
       font-size: clamp(1rem, 2.2vw, 1.75rem);
-      letter-spacing: 0.06em;
+      letter-spacing: 0.02em;
       color: var(--sub);
       text-decoration: none;
       margin-top: clamp(1.2rem, 2.2vw, 1.8rem);
       transition: color 0.35s ease, letter-spacing 0.35s ease;
       opacity: 0;
       animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-      animation-delay: 0.55s;
+      animation-delay: 0.65s;
     }
-    a.contact:hover { color: var(--sub-hover); letter-spacing: 0.10em; }
+    a.contact:hover { color: var(--sub-hover); letter-spacing: 0.04em; }
   </style>
 </head>
 <body>
@@ -66,6 +80,7 @@
   <div class="stage">
     <main>
       <h1>Resonant Labs</h1>
+      <p class="tagline">Engineering that serves the business.<br>Strategy that understands the code.</p>
       <a class="contact" href="mailto:hello@rsntl.com">hello@rsntl.com</a>
     </main>
   </div>
