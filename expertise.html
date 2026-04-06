@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Expertise — Resonant Labs</title>
+  <meta name="description" content="Resonant Labs expertise in Vulkan, Linux systems, u-boot, Qt, KDE and more.">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#050508">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5FA">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    html, body { overflow-x: clip; overflow-y: auto; }
+
+    /* ── Scrollable stage ── */
+    .stage {
+      position: relative;       /* override fixed from shared.css */
+      min-height: 100vh;
+      padding-top: 5.5rem;
+      padding-bottom: 4rem;
+    }
+
+    /* ── Page content ── */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+      opacity: 0;
+      animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.2s;
+    }
+    .page-header h1 {
+      font-family: 'Fraunces', serif;
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-size: clamp(2rem, 5vw, 3.8rem);
+      letter-spacing: -0.025em;
+      color: var(--fg);
+    }
+    .page-header p {
+      margin-top: 0.9rem;
+      font-size: clamp(0.85rem, 1.5vw, 1.05rem);
+      color: var(--sub);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Cards grid ── */
+    .expertise-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      column-gap: 1.5rem;
+      row-gap: 1rem;
+      align-items: start;
+    }
+
+    .expertise-card {
+      background: rgba(8,8,20,0.55);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 2.2rem 2rem;
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 3;
+      transition: background 0.25s ease, transform 0.25s ease;
+      opacity: 0;
+      animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    @media (prefers-color-scheme: light) {
+      .expertise-card { background: rgba(255,255,255,0.72); }
+    }
+    .expertise-card:hover {
+      background: rgba(80,0,200,0.45);
+      transform: translateY(-3px);
+    }
+
+    /* Staggered card entrance */
+    .expertise-card:nth-child(1) { animation-delay: 0.30s; }
+    .expertise-card:nth-child(2) { animation-delay: 0.38s; }
+    .expertise-card:nth-child(3) { animation-delay: 0.46s; }
+    .expertise-card:nth-child(4) { animation-delay: 0.54s; }
+    .expertise-card:nth-child(5) { animation-delay: 0.62s; }
+    .expertise-card:nth-child(6) { animation-delay: 0.70s; }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      object-fit: contain;
+      /* Force white on dark, dark on light */
+      filter: brightness(0) invert(1);
+    }
+    @media (prefers-color-scheme: light) {
+      .card-icon { filter: brightness(0); }
+    }
+
+    /* u-boot uses an inline SVG — apply same filter via class */
+    .card-icon-svg {
+      width: 48px; height: 48px;
+      fill: currentColor;
+      color: var(--fg);
+    }
+
+    .card-head {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .card-tech {
+      font-family: 'Fraunces', serif;
+      font-weight: 300;
+      font-size: 1.7rem;
+      letter-spacing: -0.01em;
+      color: var(--fg);
+    }
+
+    .card-role {
+      font-family: 'Outfit', sans-serif;
+      font-size: 0.82rem;
+      font-weight: 400;
+      letter-spacing: 0.13em;
+      text-transform: uppercase;
+      color: #b370ff;
+      transition: color 0.25s ease;
+    }
+    @media (prefers-color-scheme: light) {
+      .card-role { color: #6600bb; }
+      .card-tech { transition: color 0.25s ease; }
+      .card-body { transition: color 0.25s ease, opacity 0.25s ease; }
+      .expertise-card:hover .card-role { color: rgba(255,255,255,0.80); }
+      .expertise-card:hover .card-tech { color: rgba(255,255,255,0.95); }
+      .expertise-card:hover .card-body { color: rgba(255,255,255,0.85); opacity: 1; }
+    }
+
+    .card-body {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.02rem;
+      line-height: 1.72;
+      color: var(--fg);
+      opacity: 0.78;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="vignette"></div>
+
+  <nav class="site-nav">
+    <span class="nav-pill"></span>
+    <a href="index.html" class="nav-brand">Resonant Labs</a>
+    <a href="expertise.html" class="nav-link active">Our Expertise</a>
+  </nav>
+
+  <div class="stage">
+    <div class="page">
+      <header class="page-header">
+        <h1>Our Expertise</h1>
+        <p>Deep technical capability across the GPU, graphics and systems stack.</p>
+      </header>
+
+      <div class="expertise-grid">
+
+        <!-- Vulkan -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <img class="card-icon"
+                 src="https://cdn.simpleicons.org/vulkan/ffffff"
+                 alt="Vulkan logo">
+            <div class="card-tech">Vulkan</div>
+          </div>
+          <div class="card-role">Driver &amp; Applications Engineering</div>
+          <p class="card-body">
+            Low-level Vulkan driver development at the hardware abstraction layer,
+            including render pass optimisation, memory management and synchronisation
+            primitives. Application-side expertise covers high-performance render
+            pipelines, compute shaders and cross-platform deployment.
+          </p>
+        </div>
+
+        <!-- Linux Systems -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <img class="card-icon"
+                 src="https://cdn.simpleicons.org/linux/ffffff"
+                 alt="Linux logo">
+            <div class="card-tech">Linux Systems Engineering</div>
+          </div>
+          <div class="card-role">Kernel &amp; Systems Stack</div>
+          <p class="card-body">
+            End-to-end Linux systems expertise spanning kernel module development,
+            device driver authoring, system call tracing and performance profiling
+            with perf and eBPF. Experience hardening production systems and
+            integrating custom hardware into the kernel subsystem.
+          </p>
+        </div>
+
+        <!-- u-boot -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <!-- u-boot has no Simple Icons entry; inline SVG chip mark -->
+            <svg class="card-icon-svg" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="U-Boot logo">
+              <rect x="9" y="9" width="24" height="24" rx="3" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <rect x="14" y="14" width="14" height="14" rx="1.5" stroke="currentColor" stroke-width="1.2" fill="none"/>
+              <line x1="21" y1="9"  x2="21" y2="5"  stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="21" y1="33" x2="21" y2="37" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="9"  y1="21" x2="5"  y2="21" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="33" y1="21" x2="37" y2="21" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="14" y1="9"  x2="14" y2="5"  stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="28" y1="9"  x2="28" y2="5"  stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="14" y1="33" x2="14" y2="37" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <line x1="28" y1="33" x2="28" y2="37" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+              <circle cx="21" cy="21" r="2" fill="currentColor"/>
+            </svg>
+            <div class="card-tech">U-Boot</div>
+          </div>
+          <div class="card-role">Bootloader Engineering</div>
+          <p class="card-body">
+            Das U-Boot porting to custom silicon and board bring-up from scratch,
+            including board support package (BSP) development, SPL configuration
+            and boot sequence optimisation. Experience integrating Secure Boot,
+            fit-image signing and TFTP/NFS network boot for production embedded targets.
+          </p>
+        </div>
+
+        <!-- Ubuntu / Debian -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <div style="display:flex;gap:0.5rem;align-items:center;height:42px;">
+              <img class="card-icon" style="width:36px;height:36px;"
+                   src="https://cdn.simpleicons.org/ubuntu/ffffff"
+                   alt="Ubuntu logo">
+              <img class="card-icon" style="width:36px;height:36px;"
+                   src="https://cdn.simpleicons.org/debian/ffffff"
+                   alt="Debian logo">
+            </div>
+            <div class="card-tech">Linux OS Engineering</div>
+          </div>
+          <div class="card-role">Ubuntu &amp; Debian Packaging</div>
+          <p class="card-body">
+            Full-cycle OS engineering on Ubuntu and Debian: custom
+            <code style="font-size:0.82em;opacity:0.8">.deb</code> package creation,
+            private APT repository management, automated build pipelines with
+            sbuild and pbuilder, and maintaining downstream distribution forks.
+            Experience shipping OS images for embedded and cloud targets.
+          </p>
+        </div>
+
+        <!-- Qt -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <img class="card-icon"
+                 src="https://cdn.simpleicons.org/qt/ffffff"
+                 alt="Qt logo">
+            <div class="card-tech">Qt</div>
+          </div>
+          <div class="card-role">Application &amp; Embedded UI Engineering</div>
+          <p class="card-body">
+            Qt application development from desktop tooling to Qt for Embedded
+            Linux deployments. Expertise in Qt Quick / QML, custom C++ plugins,
+            hardware-accelerated rendering via Qt RHI, and integrating Qt
+            applications tightly with custom Linux BSPs on resource-constrained targets.
+          </p>
+        </div>
+
+        <!-- KDE -->
+        <div class="expertise-card">
+          <div class="card-head">
+            <img class="card-icon"
+                 src="https://cdn.simpleicons.org/kde/ffffff"
+                 alt="KDE logo">
+            <div class="card-tech">KDE</div>
+          </div>
+          <div class="card-role">Plasma &amp; KDE Frameworks Development</div>
+          <p class="card-body">
+            KDE Plasma shell customisation and KDE Frameworks component development,
+            including Plasmoids, KWin scripting and theme engineering. Experience
+            shipping custom KDE-based desktop environments in embedded and kiosk
+            contexts, and contributing patches upstream to KDE projects.
+          </p>
+        </div>
+
+      </div><!-- /.expertise-grid -->
+    </div><!-- /.page -->
+  </div><!-- /.stage -->
+
+  <script type="module" src="bg.js"></script>
+  <script defer src="nav.js"></script>
+  <script defer src="particles.js"></script>
+</body>
+</html>
