@@ -33,11 +33,11 @@
       text-align: center;
       margin-bottom: 3.5rem;
       opacity: 0;
-      animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: fade-up 0.7s var(--ease-spring) both;
       animation-delay: 0.2s;
     }
     .page-header h1 {
-      font-family: 'Fraunces', serif;
+      font-family: var(--font-serif);
       font-optical-sizing: auto;
       font-weight: 300;
       font-size: clamp(2rem, 5vw, 3.8rem);
@@ -61,22 +61,22 @@
     }
 
     .expertise-card {
-      background: rgba(8,8,20,0.55);
+      background: var(--card-bg-solid);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: var(--radius-card);
       padding: 2.2rem 2rem;
       display: grid;
       grid-template-rows: subgrid;
       grid-row: span 3;
       transition: background 0.25s ease, transform 0.25s ease;
       opacity: 0;
-      animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation: fade-up 0.6s var(--ease-spring) both;
     }
     @media (prefers-color-scheme: light) {
-      .expertise-card { background: rgba(255,255,255,0.72); }
+      .expertise-card { background: var(--card-bg-solid); }
     }
     .expertise-card:hover {
-      background: rgba(80,0,200,0.45);
+      background: var(--card-hover-bg);
       transform: translateY(-3px);
     }
 
@@ -113,7 +113,7 @@
     }
 
     .card-tech {
-      font-family: 'Fraunces', serif;
+      font-family: var(--font-serif);
       font-weight: 300;
       font-size: 1.7rem;
       letter-spacing: -0.01em;
@@ -121,16 +121,15 @@
     }
 
     .card-role {
-      font-family: 'Outfit', sans-serif;
+      font-family: var(--font-sans);
       font-size: 0.82rem;
       font-weight: 400;
       letter-spacing: 0.13em;
       text-transform: uppercase;
-      color: #b370ff;
+      color: var(--accent);
       transition: color 0.25s ease;
     }
     @media (prefers-color-scheme: light) {
-      .card-role { color: #6600bb; }
       .card-tech { transition: color 0.25s ease; }
       .card-body { transition: color 0.25s ease, opacity 0.25s ease; }
       .expertise-card:hover .card-role { color: rgba(255,255,255,0.80); }
@@ -146,7 +145,7 @@
       margin-top: 3rem;
     }
     .section-label span {
-      font-family: 'Fraunces', serif;
+      font-family: var(--font-serif);
       font-optical-sizing: auto;
       font-weight: 300;
       font-size: clamp(1.1rem, 2.5vw, 1.6rem);
@@ -159,7 +158,7 @@
     }
 
     .card-body {
-      font-family: 'Outfit', sans-serif;
+      font-family: var(--font-sans);
       font-size: 1.02rem;
       line-height: 1.72;
       color: var(--fg);
