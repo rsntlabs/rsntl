@@ -5,12 +5,60 @@
 const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
 const isDark  = () => darkMQ.matches;
 
+// ── Blob count by viewport width ─────────────────────────────────────────────
+// 2 parent blobs (index 0-1) + up to 4 child blobs (index 2-5)
+const MAX_BLOBS  = 6;
+function getBlobCount() {
+  const w = window.innerWidth;
+  if (w < 500) return 3;
+  if (w < 900) return 4;
+  return MAX_BLOBS;
+}
+
+// ── Position helpers (mirror WGSL math exactly) ───────────────────────────────
+function parentPos(i, t) {
+  const phi = i * Math.PI;
+  const spd = 0.06 + i * 0.03;
+  const orb = 0.30 + 0.08 * Math.sin(i * 1.7 + 0.5);
+  return [
+    0.5 + orb * Math.cos(t * spd + phi) * (0.9 + 0.1 * Math.sin(t * spd * 0.6 + phi)),
+    0.5 + orb * Math.sin(t * spd * 0.75 + phi) * (0.9 + 0.1 * Math.cos(t * spd * 0.5 + phi)),
+  ];
+}
+
+function childPos(idx, t) {
+  const pc  = parentPos(idx % 2, t);
+  const fi  = idx;
+  const phi = fi * 2.39996323;
+  const spd = 0.22 + fi * 0.07;
+  const orb = 0.10 + 0.04 * Math.sin(fi * 2.1 + t * 0.08);
+  return [
+    pc[0] + orb * Math.cos(t * spd + phi),
+    pc[1] + orb * Math.sin(t * spd * 0.85 + phi * 1.2),
+  ];
+}
+
+// Compute all blob positions; push inactive ones off-screen.
+function getBlobPositions(t, count) {
+  const pos = [];
+  for (let i = 0; i < MAX_BLOBS; i++) {
+    pos.push(i >= count ? [-2.0, -2.0] : (i < 2 ? parentPos(i, t) : childPos(i - 2, t)));
+  }
+  return pos;
+}
+
+// ── WGSL shader ───────────────────────────────────────────────────────────────
+// Blob positions now come from uniforms (computed + separated in JS).
+// Uniform layout (16 × f32 = 64 bytes):
+//   [0]  time      [1] dark_mode  [2] res_x   [3] res_y
+//   [4..15] blob positions: x0,y0, x1,y1, ..., x5,y5
 const WGSL = /* wgsl */`
 struct Uni {
   time      : f32,
   dark_mode : f32,
   res_x     : f32,
   res_y     : f32,
+  blobs     : array<vec2f, 6>,
 }
 @group(0) @binding(0) var<uniform> u: Uni;
 
@@ -21,28 +69,6 @@ fn vs(@builtin(vertex_index) vi: u32) -> @builtin(position) vec4f {
     vec2f(-1,-1), vec2f(1, 1), vec2f(-1, 1)
   );
   return vec4f(pts[vi], 0.0, 1.0);
-}
-
-fn parent_pos(i: u32, t: f32) -> vec2f {
-  let phi = f32(i) * 3.14159265;
-  let spd = 0.06 + f32(i) * 0.03;
-  let orb = 0.30 + 0.08 * sin(f32(i) * 1.7 + 0.5);
-  return vec2f(
-    0.5 + orb * cos(t * spd + phi) * (0.9 + 0.1 * sin(t * spd * 0.6 + phi)),
-    0.5 + orb * sin(t * spd * 0.75 + phi) * (0.9 + 0.1 * cos(t * spd * 0.5 + phi))
-  );
-}
-
-fn child_pos(idx: u32, t: f32) -> vec2f {
-  let pc  = parent_pos(idx % 2u, t);
-  let fi  = f32(idx);
-  let phi = fi * 2.39996323;
-  let spd = 0.22 + fi * 0.07;
-  let orb = 0.10 + 0.04 * sin(fi * 2.1 + t * 0.08);
-  return vec2f(
-    pc.x + orb * cos(t * spd + phi),
-    pc.y + orb * sin(t * spd * 0.85 + phi * 1.2)
-  );
 }
 
 fn dark_col(i: u32) -> vec3f {
@@ -79,14 +105,12 @@ fn fs(@builtin(position) frag: vec4f) -> @location(0) vec4f {
 
   for (var i = 0u; i < 6u; i++) {
     let fi = f32(i);
-    var bp: vec2f;
+    let bp = u.blobs[i];
     var r:  f32;
     if i < 2u {
-      bp = parent_pos(i, t);
-      r  = 0.28 + 0.05 * sin(fi * 1.73 + t * 0.06);
+      r = 0.28 + 0.05 * sin(fi * 1.73 + t * 0.06);
     } else {
-      bp = child_pos(i - 2u, t);
-      r  = 0.09 + 0.03 * sin(fi * 2.31 + t * 0.12);
+      r = 0.09 + 0.03 * sin(fi * 2.31 + t * 0.12);
     }
     let d = distance(uv, bp);
     let w = exp(-d * d / (r * r) * 3.5);
@@ -120,15 +144,19 @@ async function initWebGPU() {
 
   const format = navigator.gpu.getPreferredCanvasFormat();
 
+  let blobCount = getBlobCount();
+
   const configure = () => {
     canvas.width  = Math.round(window.innerWidth  * devicePixelRatio);
     canvas.height = Math.round(window.innerHeight * devicePixelRatio);
     ctx.configure({ device, format, alphaMode: 'opaque' });
+    blobCount = getBlobCount();
   };
   configure();
   window.addEventListener('resize', configure, { passive: true });
 
-  const uBuf = device.createBuffer({ size: 16, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
+  // 16 f32s = 64 bytes: [time, dark_mode, res_x, res_y, x0,y0, x1,y1, ..., x5,y5]
+  const uBuf = device.createBuffer({ size: 64, usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST });
   const bgl  = device.createBindGroupLayout({
     entries: [{ binding: 0, visibility: GPUShaderStage.FRAGMENT, buffer: { type: 'uniform' } }],
   });
@@ -149,15 +177,23 @@ async function initWebGPU() {
     primitive: { topology: 'triangle-list' },
   });
 
-  const uni  = new Float32Array(4);
+  const uni  = new Float32Array(16);
   const t0   = performance.now();
   const seed = Math.random() * 1000;
 
   const frame = () => {
-    uni[0] = seed + (performance.now() - t0) / 1000;
+    const t = seed + (performance.now() - t0) / 1000;
+    uni[0] = t;
     uni[1] = isDark() ? 1.0 : 0.0;
     uni[2] = canvas.width;
     uni[3] = canvas.height;
+
+    const pos = getBlobPositions(t, blobCount);
+    for (let i = 0; i < MAX_BLOBS; i++) {
+      uni[4 + i * 2]     = pos[i][0];
+      uni[4 + i * 2 + 1] = pos[i][1];
+    }
+
     device.queue.writeBuffer(uBuf, 0, uni);
 
     const enc  = device.createCommandEncoder();
@@ -184,7 +220,7 @@ function initCSSFallback() {
   field.className = 'blob-field';
   document.body.insertBefore(field, document.body.firstChild);
 
-  const defs = [
+  const allDefs = [
     { color: '#7F00FF', size: 55, x: 25, y: 30, dur: 70 },
     { color: '#4D00FF', size: 50, x: 60, y: 55, dur: 90 },
     { color: '#A600FF', size: 18, x: 32, y: 22, dur: 28 },
@@ -192,6 +228,8 @@ function initCSSFallback() {
     { color: '#BF00FF', size: 16, x: 68, y: 48, dur: 25 },
     { color: '#D900E5', size: 13, x: 55, y: 65, dur: 20 },
   ];
+  const count = getBlobCount();
+  const defs  = allDefs.slice(0, count);
   const rnd = (lo, hi) => lo + Math.random() * (hi - lo);
   defs.forEach(d => {
     const el = document.createElement('div');
