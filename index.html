@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logos/resonant-labs-favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="shared.css">
   <style>
     html, body { overflow: hidden; }
@@ -24,17 +25,20 @@
       padding: 2rem;
     }
 
-    h1 {
-      font-family: var(--font-serif);
-      font-optical-sizing: auto;
-      font-weight: 300;
-      font-size: clamp(2.3rem, 12.65vw, 8rem);
-      letter-spacing: -0.025em;
-      line-height: 1;
+    .site-logo {
+      width: 88vw;       /* mobile: nearly full width */
+      max-width: 420px;
+      height: auto;
       color: var(--fg);
       opacity: 0;
       animation: fade-up 0.7s var(--ease-spring) both;
       animation-delay: 0.35s;
+    }
+    @media (min-width: 600px) {
+      .site-logo { width: 65vw; max-width: 560px; }
+    }
+    @media (min-width: 1024px) {
+      .site-logo { width: 50vw; max-width: 720px; }
     }
 
     .tagline {
@@ -89,7 +93,14 @@
 
   <div class="stage">
     <main>
-      <h1>Resonant Labs</h1>
+      <svg class="site-logo" viewBox="0 0 400 200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Resonant Labs">
+        <g transform="translate(200, 90)">
+          <path d="M-60,0 Q-45,-40 -30,0 Q-15,40 0,0 Q15,-40 30,0 Q45,40 60,0" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" opacity="0.9"/>
+          <path d="M-52,0 Q-39,-25 -26,0 Q-13,25 0,0 Q13,-25 26,0 Q39,25 52,0" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" opacity="0.5"/>
+          <path d="M-44,0 Q-33,-12 -22,0 Q-11,12 0,0 Q11,-12 22,0 Q33,12 44,0" fill="none" stroke="currentColor" stroke-width="0.7" stroke-linecap="round" opacity="0.25"/>
+        </g>
+        <text x="200" y="170" text-anchor="middle" font-family="'Fraunces', Georgia, serif" font-weight="400" font-size="24" letter-spacing="0.1em" fill="currentColor">RESONANT LABS</text>
+      </svg>
       <p class="tagline">Engineering that serves the business.<br>Strategy that understands the code.</p>
       <a class="cta" href="https://calendar.proton.me/bookings#XIas9qvemCj4sukGlTICmHmCk8u1LBbN3vzjGjqRM4I=" target="_blank" rel="noopener">Schedule a call</a>
     </main>
