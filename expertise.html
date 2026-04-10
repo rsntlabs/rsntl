@@ -30,7 +30,7 @@
     .page {
       max-width: 1100px;
       margin: 0 auto;
-      padding: 0 2rem;
+      padding: 0 clamp(1rem, 4vw, 2rem);
     }
 
     .page-header {
@@ -58,7 +58,7 @@
     /* ── Cards grid ── */
     .expertise-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr));
       column-gap: 1.5rem;
       row-gap: 1rem;
       align-items: start;
@@ -68,7 +68,7 @@
       background: var(--card-bg-solid);
       border: 1px solid var(--card-border);
       border-radius: var(--radius-card);
-      padding: 2.2rem 2rem;
+      padding: clamp(1.4rem, 3.5vw, 2.2rem) clamp(1.25rem, 3vw, 2rem);
       display: grid;
       grid-template-rows: subgrid;
       grid-row: span 3;
@@ -119,7 +119,7 @@
     .card-tech {
       font-family: var(--font-serif);
       font-weight: 300;
-      font-size: 1.96rem;
+      font-size: clamp(1.45rem, 3.8vw, 1.96rem);
       letter-spacing: -0.01em;
       color: var(--fg);
     }
@@ -163,7 +163,7 @@
 
     .card-body {
       font-family: var(--font-sans);
-      font-size: 1.17rem;
+      font-size: clamp(0.95rem, 2.2vw, 1.17rem);
       line-height: 1.72;
       color: var(--fg);
       opacity: 0.78;
