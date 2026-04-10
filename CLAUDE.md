@@ -22,7 +22,7 @@ python -m http.server 8080
 
 ### Pages
 - `index.html` — full-viewport landing page (`overflow: hidden`, no scroll)
-- `expertise.html` — scrollable expertise/services page
+- `expertise.html` — scrollable expertise/services page with three card grid sections: **Advisory & Leadership**, **Engineering & Technology**, and **Embedded Platforms**
 
 Each page loads `shared.css`, then `bg.js` (module), `nav.js`, and `particles.js` as deferred scripts.
 
