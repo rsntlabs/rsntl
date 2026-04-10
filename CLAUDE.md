@@ -15,6 +15,11 @@ python -m http.server 8080
 
 ## Architecture
 
+### Static files
+- **`CNAME`** — custom domain (`rsntl.com`). Do not delete; removing it breaks GitHub Pages routing.
+- **`assets/icons/`** — SVG icons used in page content.
+- **`logo.svg`** — site logo.
+
 ### Pages
 - `index.html` — full-viewport landing page (`overflow: hidden`, no scroll)
 - `expertise.html` — scrollable expertise/services page
@@ -23,7 +28,7 @@ Each page loads `shared.css`, then `bg.js` (module), `nav.js`, and `particles.js
 
 ### Shared assets
 - **`shared.css`** — all design tokens (CSS custom properties), layout primitives (`.stage`, `#bg`, `#vignette`), nav styles, grain animation, CSS blob fallback, and cross-document view-transition keyframes. Page-specific styles live in an inline `<style>` block within each HTML file.
-- **`bg.js`** — animated gradient background. Attempts WebGPU first (WGSL shader with 6 animated blobs); falls back to CSS animated `.blob` divs. Loaded as `type="module"` so it can use top-level `await`.
+- **`bg.js`** — animated gradient background. Attempts WebGPU first (WGSL shader with 6 animated blobs); falls back to CSS animated `.blob` divs. Loaded as `type="module"` so it can use top-level `await`. Requires `<canvas id="bg">` present in the page — the SPA swap must preserve this element.
 - **`nav.js`** — floating pill nav. Handles the sliding highlight pill, scroll-hide behaviour, SPA-style navigation (swaps `.stage` innerHTML without reloading the page so the canvas animation never pauses), prefetches sibling pages on load, and handles browser history.
 - **`particles.js`** — click-to-burst particle effect using fixed-position divs.
 
