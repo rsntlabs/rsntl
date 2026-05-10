@@ -111,6 +111,7 @@
 
     await delay(340);
     enterKids.forEach(c => { c.style.transition = c.style.opacity = c.style.transform = ''; });
+    document.dispatchEvent(new CustomEvent('page:loaded', { detail: { url } }));
   }
 
   /* Intercept nav-link clicks */
