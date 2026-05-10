@@ -1,0 +1,16 @@
+name = "rsntl-finance"
+main = "src/index.ts"
+compatibility_date = "2024-09-23"
+# account_id is read from CLOUDFLARE_ACCOUNT_ID env var by wrangler automatically
+
+[vars]
+ALLOWED_ORIGINS = "https://rsntl.com"
+
+[[kv_namespaces]]
+binding = "CRUMB_CACHE"
+# CI substitutes this placeholder with the CF_KV_NAMESPACE_ID GitHub secret
+id = "REPLACE_WITH_ACTUAL_KV_ID"
+
+[[routes]]
+pattern = "finance.rsntl.com/*"
+zone_name = "rsntl.com"

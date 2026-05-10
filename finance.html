@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Finance — Resonant Labs</title>
+  <meta name="description" content="Live stock analysis — fundamentals, CAPM, Graham valuation, Monte Carlo simulation and options analysis.">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)"  content="#050508">
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F5FA">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Outfit:wght@300;400&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logos/resonant-labs-favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    html { height: 100%; overflow-y: auto; overflow-x: clip; }
+    body { height: auto; min-height: 100%; overflow: visible; }
+
+    /* ── Scrollable stage ── */
+    .stage {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      height: auto;
+      min-height: 100vh;
+      padding-top: 5.5rem;
+      padding-bottom: 4rem;
+    }
+
+    /* ── Page content ── */
+    .page {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 clamp(1rem, 4vw, 2rem);
+    }
+
+    .page-header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fade-up 0.7s var(--ease-spring) both;
+      animation-delay: 0.2s;
+    }
+    .page-header h1 {
+      font-family: var(--font-serif);
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-size: clamp(2.3rem, 5.75vw, 4.37rem);
+      letter-spacing: -0.025em;
+      color: var(--fg);
+    }
+    .page-header p {
+      margin-top: 0.9rem;
+      font-size: clamp(0.98rem, 1.73vw, 1.21rem);
+      color: var(--sub);
+      letter-spacing: 0.02em;
+    }
+
+    /* ── Search form ── */
+    .ticker-form {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 3rem;
+      opacity: 0;
+      animation: fade-up 0.7s var(--ease-spring) both;
+      animation-delay: 0.35s;
+    }
+    .ticker-form input {
+      font-family: var(--font-sans);
+      font-size: 1.05rem;
+      font-weight: 400;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--fg);
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-pill);
+      padding: 0.65em 1.4em;
+      outline: none;
+      width: 160px;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .ticker-form input::placeholder {
+      color: var(--sub);
+      text-transform: uppercase;
+    }
+    .ticker-form input:focus {
+      border-color: var(--accent);
+      background: var(--card-bg);
+    }
+    .ticker-form button {
+      font-family: var(--font-sans);
+      font-size: 0.93rem;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--fg);
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-pill);
+      padding: 0.65em 1.6em;
+      cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+    }
+    .ticker-form button:hover {
+      background: var(--accent-subtle);
+      border-color: var(--accent);
+      color: var(--fg);
+    }
+
+    /* ── Finance content area ── */
+    #finance-content {
+      width: 100%;
+    }
+
+    /* ── Finance sections ── */
+    .finance-section {
+      margin-bottom: 2.5rem;
+      opacity: 0;
+      animation: fade-up 0.6s var(--ease-spring) both;
+    }
+    .finance-section-title {
+      font-family: var(--font-serif);
+      font-optical-sizing: auto;
+      font-weight: 300;
+      font-size: clamp(1.27rem, 2.88vw, 1.84rem);
+      letter-spacing: -0.01em;
+      color: var(--fg);
+      margin-bottom: 1.2rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    /* ── Profile header ── */
+    .profile-header {
+      margin-bottom: 0.5rem;
+    }
+    .profile-name {
+      font-family: var(--font-serif);
+      font-weight: 300;
+      font-size: clamp(1.6rem, 4vw, 2.6rem);
+      letter-spacing: -0.02em;
+      color: var(--fg);
+    }
+    .profile-meta {
+      font-size: 0.9rem;
+      color: var(--sub);
+      margin-top: 0.25rem;
+      letter-spacing: 0.04em;
+    }
+    .profile-meta span {
+      margin-right: 1em;
+    }
+    .profile-asof {
+      font-size: 0.8rem;
+      color: var(--sub);
+      margin-top: 0.15rem;
+      opacity: 0.7;
+    }
+
+    /* ── Stat strip ── */
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+      gap: 0.75rem;
+    }
+    .stat-card {
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      padding: 1rem 1.25rem;
+      transition: background 0.2s ease;
+    }
+    .stat-card:hover {
+      background: var(--card-hover-bg);
+    }
+    .stat-label {
+      font-size: 0.76rem;
+      font-weight: 400;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--sub);
+      margin-bottom: 0.35rem;
+    }
+    .stat-value {
+      font-family: var(--font-sans);
+      font-size: 1.35rem;
+      font-weight: 400;
+      color: var(--fg);
+    }
+    .stat-value.pos { color: var(--chart-green); }
+    .stat-value.neg { color: var(--chart-red); }
+
+    /* ── Description ── */
+    .description-text {
+      font-size: clamp(0.93rem, 1.8vw, 1.05rem);
+      line-height: 1.75;
+      color: var(--fg);
+      opacity: 0.82;
+      max-width: 820px;
+    }
+
+    /* ── Fundamentals table ── */
+    .fund-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr));
+      gap: 0.6rem;
+    }
+    .fund-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 0.65rem 1rem;
+    }
+    .fund-key {
+      font-size: 0.82rem;
+      color: var(--sub);
+      letter-spacing: 0.05em;
+    }
+    .fund-val {
+      font-family: var(--font-sans);
+      font-size: 0.95rem;
+      font-weight: 400;
+      color: var(--fg);
+    }
+    .fund-val.pos { color: var(--chart-green); }
+    .fund-val.neg { color: var(--chart-red); }
+
+    /* ── SVG charts ── */
+    .chart-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: var(--radius-card);
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      padding: 1rem;
+    }
+    .chart-wrap svg {
+      display: block;
+      width: 100%;
+      height: auto;
+      min-width: 320px;
+    }
+
+    /* ── Verdict cards ── */
+    .verdict-card {
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    .verdict-badge {
+      font-family: var(--font-sans);
+      font-size: 0.78rem;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.35em 1em;
+      border-radius: var(--radius-pill);
+      border: 1px solid currentColor;
+    }
+    .verdict-badge.undervalued { color: var(--chart-green); }
+    .verdict-badge.overvalued  { color: var(--chart-red); }
+    .verdict-badge.unknown     { color: var(--sub); }
+    .verdict-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+    .verdict-stat {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+    }
+    .verdict-stat-label {
+      font-size: 0.75rem;
+      color: var(--sub);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .verdict-stat-value {
+      font-family: var(--font-sans);
+      font-size: 1.1rem;
+      color: var(--fg);
+    }
+
+    /* ── Options section ── */
+    .options-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .options-pill {
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-pill);
+      padding: 0.4em 1em;
+      font-size: 0.85rem;
+      color: var(--sub);
+    }
+    .options-pill strong {
+      color: var(--fg);
+      font-weight: 400;
+    }
+    .options-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(240px, 100%), 1fr));
+      gap: 0.75rem;
+    }
+    .strategy-card {
+      background: var(--card-bg-solid);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius-card);
+      padding: 1.25rem 1.4rem;
+      transition: background 0.2s ease;
+    }
+    .strategy-card:hover {
+      background: var(--card-hover-bg);
+    }
+    .strategy-name {
+      font-family: var(--font-serif);
+      font-weight: 300;
+      font-size: 1.12rem;
+      color: var(--fg);
+      margin-bottom: 0.25rem;
+    }
+    .strategy-desc {
+      font-size: 0.81rem;
+      color: var(--sub);
+      margin-bottom: 0.9rem;
+      line-height: 1.5;
+    }
+    .strategy-stats {
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      margin-bottom: 0.9rem;
+    }
+    .greek-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.82rem;
+    }
+    .greek-label { color: var(--sub); }
+    .greek-value { color: var(--fg); font-variant-numeric: tabular-nums; }
+    .leg-divider {
+      font-size: 0.72rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0.5rem 0 0.3rem;
+    }
+
+    /* ── Skeleton ── */
+    @keyframes shimmer {
+      0%   { background-position: -400% 0; }
+      100% { background-position:  400% 0; }
+    }
+    .skeleton {
+      border-radius: var(--radius-card);
+      background: linear-gradient(
+        90deg,
+        var(--card-bg-solid) 25%,
+        var(--card-hover-bg) 50%,
+        var(--card-bg-solid) 75%
+      );
+      background-size: 400% 100%;
+      animation: shimmer 1.6s ease infinite;
+    }
+    .skeleton-strip {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(200px, 100%), 1fr));
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .skeleton-card { height: 72px; }
+    .skeleton-block { height: 200px; margin-bottom: 2rem; }
+    .skeleton-block-sm { height: 120px; margin-bottom: 1rem; }
+
+    /* ── Error ── */
+    .finance-error {
+      background: color-mix(in srgb, var(--chart-red) 10%, transparent);
+      border: 1px solid color-mix(in srgb, var(--chart-red) 35%, transparent);
+      border-radius: var(--radius-card);
+      padding: 1.25rem 1.5rem;
+      color: var(--chart-red);
+      font-size: 0.95rem;
+    }
+    .finance-error strong {
+      display: block;
+      font-weight: 400;
+      margin-bottom: 0.3rem;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── MC chart label ── */
+    .mc-label {
+      font-family: var(--font-sans);
+      font-size: 0.88rem;
+      color: var(--sub);
+      margin-top: 0.75rem;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="bg"></canvas>
+  <div id="vignette"></div>
+
+  <nav class="site-nav">
+    <span class="nav-pill"></span>
+    <a href="index.html" class="nav-brand">Resonant Labs</a>
+    <a href="expertise.html" class="nav-link">Our Expertise</a>
+    <a href="finance.html" class="nav-link active">Finance</a>
+  </nav>
+
+  <div class="stage">
+    <div class="page">
+      <header class="page-header">
+        <h1>Stock Analysis</h1>
+        <p>Enter a ticker to fetch live financial data and analysis.</p>
+      </header>
+
+      <form id="ticker-form" class="ticker-form">
+        <input type="text" id="ticker-input" name="ticker" placeholder="AAPL" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="10" required>
+        <button type="submit">Analyse</button>
+      </form>
+
+      <section id="finance-content"></section>
+    </div>
+  </div>
+
+  <script type="module" src="bg.js"></script>
+  <script defer src="nav.js"></script>
+  <script defer src="particles.js"></script>
+  <script defer src="finance.js"></script>
+</body>
+</html>
